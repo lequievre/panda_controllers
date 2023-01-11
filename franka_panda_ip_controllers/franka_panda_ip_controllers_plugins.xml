@@ -1,0 +1,11 @@
+<library path="lib/libfranka_panda_ip_controllers">
+  
+  <class name="franka_panda_ip_controllers/JointPositionTrapezoidController"
+         type="franka_panda_ip_controllers::JointPositionTrapezoidController"
+         base_class_type="controller_interface::ControllerBase">
+    <description>
+      Franka robot joint position trapezoid controller, Pascal Institute UMR6602 CNRS
+    </description>
+  </class>
+  
+</library>
