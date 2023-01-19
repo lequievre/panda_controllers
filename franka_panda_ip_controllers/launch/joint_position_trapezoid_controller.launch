@@ -2,15 +2,20 @@
 <launch>
   <arg name="robot_ip" default="172.16.0.2"/>
   <arg name="load_gripper" default="true" />
-  <include file="$(find franka_control)/launch/franka_control.launch" >
-    <arg name="robot_ip" value="$(arg robot_ip)" />
-    <arg name="load_gripper" value="$(arg load_gripper)" />
-  </include>
+  <arg name="robot_namespace" default="panda1"/>
+  
+  <group ns="$(arg robot_namespace)">
+  
+      <include file="$(find franka_control)/launch/franka_control.launch" >
+        <arg name="robot_ip" value="$(arg robot_ip)" />
+        <arg name="load_gripper" value="$(arg load_gripper)" />
+      </include>
 
-  <rosparam command="load" file="$(find franka_panda_ip_controllers)/config/franka_controllers.yaml" />
-  
-  <node name="jointposition_controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="joint_position_trapezoid_controller"/>
-  
-  <node pkg="rviz" type="rviz" output="screen" name="rviz" args="-d $(find franka_panda_ip_controllers)/launch/rviz/franka_description_with_marker.rviz"/>
+      <rosparam command="load" file="$(find franka_panda_ip_controllers)/config/franka_controllers.yaml" />
+      
+      <node name="jointposition_controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"  args="joint_position_trapezoid_controller"/>
+      
+      <node pkg="rviz" type="rviz" output="screen" name="rviz" args="-d $(find franka_panda_ip_controllers)/launch/rviz/franka_description_with_marker.rviz"/>
+  </group>
   
 </launch>
