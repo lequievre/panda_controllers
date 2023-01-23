@@ -22,7 +22,7 @@ class collisionBehaviorIPServer {
           panda_collision_behavior_client_ = nh_.serviceClient<franka_msgs::SetFullCollisionBehavior>("/franka_control/set_full_collision_behavior");
           high_values_service_ = nh_.advertiseService("ip_collision_behavior/set_high_values", &collisionBehaviorIPServer::high_values_cb, this);
           low_values_service_ = nh_.advertiseService("ip_collision_behavior/set_low_values", &collisionBehaviorIPServer::low_values_cb, this);
-		  maximum_values_service_ = nh_.advertiseService("ip_collision_behavior/set_maximum_values", &collisionBehaviorIPServer::maximum_values_cb, this);
+          maximum_values_service_ = nh_.advertiseService("ip_collision_behavior/set_maximum_values", &collisionBehaviorIPServer::maximum_values_cb, this);
 		
           ROS_WARN("collisionBehaviorIPServer Server Created !");
       }
