@@ -103,7 +103,7 @@ class collisionBehaviorIPServer {
 
 int main (int argc, char **argv)
 {
-    ros::init(argc, argv, "collision_behavior_IP_node init !");
+    ros::init(argc, argv, "collision_behavior_ip_node");
 
     collisionBehaviorIPServer ip_collision_server;
 
