@@ -4,6 +4,7 @@
  *  Institut Pascal UMR6602
  *  laurent.lequievre@uca.fr
  * 
+ *  rosrun franka_panda_ip_controllers collision_behavior_ip_node
  *  rosservice call ip_collision_behavior/set_high_values
  *  rosservice call ip_collision_behavior/set_low_values
  *  rosservice call ip_collision_behavior/set_maximum_values
@@ -102,7 +103,7 @@ class collisionBehaviorIPServer {
 
 int main (int argc, char **argv)
 {
-    ros::init(argc, argv, "collisionBehaviorIPServer server init !");
+    ros::init(argc, argv, "collision_behavior_IP_node init !");
 
     collisionBehaviorIPServer ip_collision_server;
 
