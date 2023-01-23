@@ -61,4 +61,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
    ${catkin_INCLUDE_DIRS}
 )
 
-
+add_executable(services_collision_behavior_ip src/services_collision_behavior_ip.cpp)
+add_dependencies(services_collision_behavior_ip ${PROJECT_NAME}_gencpp)
+target_link_libraries(services_collision_behavior_ip PUBLIC ${catkin_LIBRARIES} )
