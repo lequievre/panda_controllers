@@ -126,8 +126,8 @@ namespace franka_panda_ip_controllers
 		std::fill(current_joint_velocities_commands_.begin(), current_joint_velocities_commands_.end(), 0.0);
 		
 		// Original acceleration limits from Franka-Emika. They are divided by d, in order to make controller smooth. Second joint affected by the movement of the other joints which is relatively smaller than others.
-		double d = 15.0;
-		joint_accelerations_ = {15.0/d,10.0/10.0,10.0/d,12.5/12.5,15.0/d,20.0/d,20.0/d}; // rad/s^-2
+		double d = 50.0;
+		joint_accelerations_ = {15.0/d,10.0/d,10.0/d,12.5/d,15.0/d,20.0/d,20.0/d}; // rad/s^-2
 
         // subscribe to JointState command
         sub_command_ = node_handle.subscribe("command", 20, &JointPositionTrapezoidController::commandCB, this, ros::TransportHints().reliable().tcpNoDelay());
@@ -237,7 +237,7 @@ namespace franka_panda_ip_controllers
 			int direction = std::signbit(distance_to_goal_point)==1?-1:1;
 
 			//If distance_to_goal_point is more than this value keep joints working. Less than 0.001 causes problems becareful with oscillations.
-			double goal_distance_check_value = 0.001;				
+			double goal_distance_check_value = 0.002;				
 
 			if (std::fabs(distance_to_goal_point)>goal_distance_check_value || seconds_passed <= 0.001) // Seconds_passed prevents oscillations at the first call of the controller. DO NOT DELETE!
 			{				
@@ -255,8 +255,8 @@ namespace franka_panda_ip_controllers
 						&& 
 						std::fabs(position_joint_handles_[joint_id].getVelocity())>(0.1*DEG_TO_RAD)
 					)
-				{			
-					current_joint_velocities_commands_[joint_id] -= (direction) * joint_accelerations_[joint_id]*period.toSec();						
+				{	
+					current_joint_velocities_commands_[joint_id] -= (direction) * (joint_accelerations_[joint_id]*period.toSec());					
 				}
 				//Acceleration
 				else if ( std::fabs(desired_joint_velocities[joint_id] - std::fabs(position_joint_handles_[joint_id].getVelocity())) > (1.0*DEG_TO_RAD) )
