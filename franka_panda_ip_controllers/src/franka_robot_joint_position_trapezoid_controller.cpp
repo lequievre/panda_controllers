@@ -18,6 +18,20 @@ namespace franka_panda_ip_controllers
 		    desired_joint_positions_buffer_.writeFromNonRT(msg->position);
 		    desired_joint_velocities_buffer_.writeFromNonRT(msg->velocity);
 		    
+		    ROS_INFO_STREAM(" ******* \n Command received: \n Position = [");
+		    for (size_t i=0; i<msg->position.size(); i++)
+		    {
+		        ROS_INFO_STREAM("" << msg->position[i] << ",");
+		    }
+		    
+		    ROS_INFO_STREAM("]\n Velocity = [");
+		    
+		    for (size_t i=0; i<msg->velocity.size(); i++)
+		    {
+		        ROS_INFO_STREAM("" << msg->velocity[i] << ",");
+		    }
+		    ROS_INFO_STREAM("]\n");
+		    
 		    /*
 		    std::vector<double> joint_velocities_in_radian;
 		    for_each(begin(msg->velocity), end(msg->velocity),
