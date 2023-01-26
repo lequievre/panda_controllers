@@ -59,7 +59,9 @@ class collisionBehaviorIPServer {
           panda_collision_behavior_client_.call(srv);
 
           ROS_INFO("Low Values Set");
-          return true;
+          res.message = "OK";
+
+          return res.success = true;
       }
 
       bool high_values_cb(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
@@ -77,27 +79,35 @@ class collisionBehaviorIPServer {
           panda_collision_behavior_client_.call(srv);
 
           ROS_INFO("High Values Set");
+          
+          res.message = "OK";
 
-          return true;
+          return res.success = true;
       }
     
       bool maximum_values_cb(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res)
       {
+          ROS_INFO("Try Maximum Values Set !");
+          
           franka_msgs::SetFullCollisionBehavior srv;
-          srv.request.lower_torque_thresholds_acceleration = {{-30, -30, -30, -30, -10, -10, -10}};
+          srv.request.lower_torque_thresholds_acceleration = {{-30.0, -30.0, -30.0, -30.0, -10.0, -10.0, -10.0}};
           srv.request.upper_torque_thresholds_acceleration = {{100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0}};
           srv.request.lower_torque_thresholds_nominal = {{20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0}};
           srv.request.upper_torque_thresholds_nominal = {{100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0}};
-          srv.request.lower_force_thresholds_acceleration = {{-30, -30, -30,  -10, -10, -10}};
+          srv.request.lower_force_thresholds_acceleration = {{-30.0, -30.0, -30.0,  -10.0, -10.0, -10.0}};
           srv.request.upper_force_thresholds_acceleration  = {{100.0, 100.0, 100.0, 100.0, 100.0, 100.0}};
           srv.request.lower_force_thresholds_nominal = {{100.0, 100.0, 100.0, 7.5, 7.5, 7.5}};
           srv.request.upper_force_thresholds_nominal = {{100.0, 100.0, 100.0, 100.0, 100.0, 100.0}};
 
+          ROS_INFO("Before call Maximum Values Set !");
+          
           panda_collision_behavior_client_.call(srv);
 
           ROS_INFO("Maximum Values Set");
 
-          return true;
+          res.message = "OK";
+
+          return res.success = true;
       }
 };
 
