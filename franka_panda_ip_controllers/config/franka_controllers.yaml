@@ -11,7 +11,7 @@ joint_position_trapezoid_controller:
     - panda_joint7
 
 
-joint_position_controller:
+position_joint_position_controller:
   type: franka_panda_ip_controllers/PositionJointPositionController
   arm_id: panda
   joint_names:
