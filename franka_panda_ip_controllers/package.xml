@@ -27,6 +27,7 @@
   <!-- Example: -->
   <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
   <author>Berk Tepebag</author>
+  <author>Laurent LEQUIEVRE</author>
 
 
   <!-- The *depend tags are used to specify dependencies -->
@@ -54,6 +55,7 @@
   <build_depend>std_msgs</build_depend>
   <build_depend>controller_interface</build_depend>
   <build_depend>control_toolbox</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
   <build_depend>urdf</build_depend>
   <build_depend>kdl_parser</build_depend>
   <build_depend>std_msgs</build_depend>
@@ -81,7 +83,7 @@
   <exec_depend>realtime_tools</exec_depend>
   <exec_depend>hardware_interface</exec_depend>
   <exec_depend>pluginlib</exec_depend>
-  
+  <exec_depend>dynamic_reconfigure</exec_depend>
   <exec_depend>franka_control</exec_depend>
   <exec_depend>franka_hw</exec_depend>
   <exec_depend>franka_description</exec_depend>

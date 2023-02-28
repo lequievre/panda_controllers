@@ -22,10 +22,16 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Eigen3 REQUIRED)
 find_package(Franka 0.5.0 REQUIRED)
 
+
+generate_dynamic_reconfigure_options(
+  cfg/joint_controller_params.cfg
+)
+
 catkin_package(
   LIBRARIES ${PROJECT_NAME}
   CATKIN_DEPENDS
     controller_interface
+    dynamic_reconfigure
     franka_hw
     geometry_msgs
     hardware_interface
@@ -38,6 +44,7 @@ catkin_package(
 
 add_library(${PROJECT_NAME}
   src/franka_robot_joint_position_trapezoid_controller.cpp
+  src/position_joint_position_controller.cpp
 )
 add_dependencies(${PROJECT_NAME}
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
@@ -46,6 +53,8 @@ add_dependencies(${PROJECT_NAME}
   ${PROJECT_NAME}_gencpp
   ${PROJECT_NAME}_gencfg
 )
+
+
 target_link_libraries(${PROJECT_NAME} PUBLIC
   ${Franka_LIBRARIES}  
   ${catkin_LIBRARIES}
