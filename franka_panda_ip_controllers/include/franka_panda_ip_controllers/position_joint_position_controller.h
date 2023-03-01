@@ -83,9 +83,9 @@ class PositionJointPositionController : public controller_interface::MultiInterf
   // joint_cmd subscriber
   ros::Subscriber sub_command_;
 
-  double filter_joint_pos_{0.3};
-  double target_filter_joint_pos_{0.3};
-  double filter_factor_{0.01};
+  double filter_joint_pos_{2.0};
+  double target_filter_joint_pos_{0.01};
+  double filter_factor_{0.05};
 
   double param_change_filter_{0.005};
 

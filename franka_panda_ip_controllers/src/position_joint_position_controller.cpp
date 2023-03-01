@@ -316,7 +316,10 @@ bool PositionJointPositionController::checkPositionLimits(const std::vector<doub
 
 void PositionJointPositionController::jointControllerParamCallback(franka_panda_ip_controllers::joint_controller_paramsConfig& config,
                                uint32_t level){
-	target_filter_joint_pos_ = config.position_joint_delta_filter;
+	target_filter_joint_pos_ = config.target_filter_joint_pos_delta;
+	filter_joint_pos_ = config.filter_joint_pos_delta;
+	filter_factor_ = config.filter_factor_delta;
+	param_change_filter_ = config.param_change_filter_delta;
 }
 
 }  // namespace franka_ros_controllers
