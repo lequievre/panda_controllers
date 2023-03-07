@@ -83,9 +83,9 @@ class PositionJointPositionController : public controller_interface::MultiInterf
   // joint_cmd subscriber
   ros::Subscriber sub_command_;
 
-  double filter_joint_pos_{2.0};
-  double target_filter_joint_pos_{0.01};
-  double filter_factor_{0.05};
+  double filter_joint_pos_{0.3};
+  double target_filter_joint_pos_{0.1};
+  double filter_factor_{0.01};
 
   double param_change_filter_{0.005};
 
@@ -119,7 +119,7 @@ class PositionJointPositionController : public controller_interface::MultiInterf
   realtime_tools::RealtimeBuffer<std::vector<double> > prev_pos_buffer_;
   realtime_tools::RealtimeBuffer<std::vector<double> > pos_d_target_buffer_;
   realtime_tools::RealtimeBuffer<std::vector<double> > pos_d_buffer_;
-        
+         
 };
 
 }  // namespace franka_ros_controllers

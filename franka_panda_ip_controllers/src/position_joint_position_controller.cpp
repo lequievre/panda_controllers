@@ -57,6 +57,11 @@ void PositionJointPositionController::commandCB(const std_msgs::Float64MultiArra
 		else {
 		 	pos_d_target_buffer_.writeFromNonRT(msg->data);
 	 	}
+	 	
+	 	for (size_t i=0; i<7; ++i)
+		{
+			ROS_INFO_STREAM("commandCB : " << msg->data[i] << ", " );
+		}
 		   
 		ROS_INFO("***** FINISH PositionJointPositionController::commandCB ************");
 	}
@@ -213,6 +218,7 @@ bool PositionJointPositionController::init(hardware_interface::RobotHW* robot_hw
 
 void PositionJointPositionController::starting(const ros::Time& /* time */) {
 
+
 	std::vector<double> initial_pos_;
 	initial_pos_.resize(NB_JOINTS);
 
@@ -220,20 +226,29 @@ void PositionJointPositionController::starting(const ros::Time& /* time */) {
 		initial_pos_[i] = position_joint_handles_[i].getPosition();
 	}
 	
+	
+	
 	pos_d_buffer_.writeFromNonRT(initial_pos_);
 	prev_pos_buffer_.writeFromNonRT(initial_pos_);
 	pos_d_target_buffer_.writeFromNonRT(initial_pos_);
+	
+	for (size_t i=0; i<7; ++i)
+	{
+	  ROS_INFO_STREAM("Starting : " << initial_pos_[i] << ", " );
+    }
+    
 }
 
 void PositionJointPositionController::update(const ros::Time& time,
                                             const ros::Duration& period) {
-                                            
+      
+    
 	std::vector<double> pos_d = *pos_d_buffer_.readFromRT();
 	std::vector<double> prev_pos = *prev_pos_buffer_.readFromRT();
 	std::vector<double> & pos_d_target = *pos_d_target_buffer_.readFromRT();
   
 	for (size_t i = 0; i < NB_JOINTS; ++i) {
-		position_joint_handles_[i].setCommand(pos_d[i]);
+		position_joint_handles_[i].setCommand(pos_d[i]);	
 	}
 	
 	double filter_val = filter_joint_pos_ * filter_factor_;
@@ -299,7 +314,7 @@ void PositionJointPositionController::update(const ros::Time& time,
 			 realtime_obs_orientation_pub_->msg_  = obs_orientation_msg_;
 			 realtime_obs_orientation_pub_->unlockAndPublish();
         }
-
+   
 }
 
 bool PositionJointPositionController::checkPositionLimits(const std::vector<double> & positions)

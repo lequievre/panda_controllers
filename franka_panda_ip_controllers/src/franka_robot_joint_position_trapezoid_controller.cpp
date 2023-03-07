@@ -4,6 +4,7 @@
 #include <controller_interface/controller_base.h>
 #include <hardware_interface/hardware_interface.h>
 #include<algorithm>
+#include <cmath>
 
 namespace franka_panda_ip_controllers
 {
@@ -140,9 +141,11 @@ namespace franka_panda_ip_controllers
 		std::fill(current_joint_velocities_commands_.begin(), current_joint_velocities_commands_.end(), 0.0);
 		
 		// Original acceleration limits from Franka-Emika. They are divided by d, in order to make controller smooth. Second joint affected by the movement of the other joints which is relatively smaller than others.
-		double d = 50.0;
-		joint_accelerations_ = {15.0/d,10.0/d,10.0/d,12.5/d,15.0/d,20.0/d,20.0/d}; // rad/s^-2
-
+		double d = 100.0;
+		joint_accelerations_ = {10.0/d,10.0/d,10.0/d,10.0/d,10.0/d,10.0/d,10.0/d}; // rad/s^-2
+        //double d = 15.0;    
+        //joint_accelerations_ = {15.0/d,10.0/10.0,10.0/d,12.5/12.5,15.0/d,20.0/d,20.0/d}; // rad/s^-2
+        
         // subscribe to JointState command
         sub_command_ = node_handle.subscribe("command", 20, &JointPositionTrapezoidController::commandCB, this, ros::TransportHints().reliable().tcpNoDelay());
 
@@ -179,6 +182,10 @@ namespace franka_panda_ip_controllers
 	}
 
 	void JointPositionTrapezoidController::update(const ros::Time&, const ros::Duration& period) {
+		
+		 // Read topic command CB buffer
+		std::vector<double> & desired_joint_positions = *desired_joint_positions_buffer_.readFromRT();
+		std::vector<double> & desired_joint_velocities = *desired_joint_velocities_buffer_.readFromRT();
 		
 		// get state variables
         franka::RobotState robot_state = state_handle_->getRobotState();
@@ -228,9 +235,7 @@ namespace franka_panda_ip_controllers
 			 realtime_obs_orientation_pub_->unlockAndPublish();
         }
         
-        // Read topic command CB buffer
-		std::vector<double> & desired_joint_positions = *desired_joint_positions_buffer_.readFromRT();
-		std::vector<double> & desired_joint_velocities = *desired_joint_velocities_buffer_.readFromRT();
+       
 		
 		//Total time passed since controller started in ROS::time
 		elapsed_time_ += period;
@@ -246,6 +251,7 @@ namespace franka_panda_ip_controllers
 		{
 			//Distance between goal position and joint's current position. 
 			distance_to_goal_point = desired_joint_positions[joint_id] - position_joint_handles_[joint_id].getPosition();
+			//distance_to_goal_point = floor(distance_to_goal_point * 100) / 100;
 
 			//Since joints are turning both -/+ sides, we need it as a multiplier. 
 			int direction = std::signbit(distance_to_goal_point)==1?-1:1;
