@@ -17,4 +17,12 @@
     </description>
   </class>
   
+  <class name="franka_panda_ip_controllers/JointPositionControllerIP"
+         type="franka_panda_ip_controllers::JointPositionControllerIP"
+         base_class_type="controller_interface::ControllerBase">
+    <description>
+      Franka robot joint position controller, Pascal Institute UMR6602 CNRS
+    </description>
+  </class>
+  
 </library>

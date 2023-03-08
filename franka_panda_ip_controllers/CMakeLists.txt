@@ -22,9 +22,9 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Eigen3 REQUIRED)
 find_package(Franka 0.5.0 REQUIRED)
 
-
 generate_dynamic_reconfigure_options(
   cfg/joint_controller_params.cfg
+  cfg/joint_position_controller_ip_params.cfg
 )
 
 catkin_package(
@@ -42,9 +42,14 @@ catkin_package(
   DEPENDS Franka
 )
 
+add_library(${PROJECT_NAME}_robot_motion_generation
+  src/robot_motion_generation/CDDynamics.cpp
+)
+
 add_library(${PROJECT_NAME}
   src/franka_robot_joint_position_trapezoid_controller.cpp
   src/position_joint_position_controller.cpp
+  src/joint_position_controller_ip.cpp
 )
 add_dependencies(${PROJECT_NAME}
   ${${PROJECT_NAME}_EXPORTED_TARGETS}
@@ -54,10 +59,10 @@ add_dependencies(${PROJECT_NAME}
   ${PROJECT_NAME}_gencfg
 )
 
-
 target_link_libraries(${PROJECT_NAME} PUBLIC
   ${Franka_LIBRARIES}  
   ${catkin_LIBRARIES}
+  ${PROJECT_NAME}_robot_motion_generation
 )
 
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
@@ -65,7 +70,13 @@ target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC
   ${EIGEN3_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
+
 target_include_directories(${PROJECT_NAME} PUBLIC
+  include
+   ${catkin_INCLUDE_DIRS}
+)
+
+target_include_directories(${PROJECT_NAME}_robot_motion_generation PUBLIC
   include
    ${catkin_INCLUDE_DIRS}
 )
