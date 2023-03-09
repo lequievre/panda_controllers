@@ -68,7 +68,14 @@ namespace platform_panda_plugins_ns {
 		button_send_positions_ = new QPushButton("Send Position");
 		button_send_positions_->setToolTip("Send sliders positions to ROS position controller");
 		connect(button_send_positions_, SIGNAL(pressed()), this, SLOT(sendPosition()));
+		
+		button_go_home_ = new QPushButton("GO HOME");
+		button_go_home_->setToolTip("Send Home Position to ROS position controller");
+		connect(button_go_home_, SIGNAL(pressed()), this, SLOT(sendGoHome()));
+		
+		
 		vlayout_positions_->addWidget(button_send_positions_);
+		vlayout_positions_->addWidget(button_go_home_);
 		
 		// set widget_positions_  layout
 		widget_positions_->setLayout(vlayout_positions_);
@@ -81,14 +88,12 @@ namespace platform_panda_plugins_ns {
 		vlayout_global_->addWidget(tab_widget_);
 		vlayout_global_->setStretchFactor(tab_widget_, 1);
 		
-		plot_checked_ = new platform_panda_plugins_ns::QtPlotChecked(widget_global_, QString("Movement of the Panda Joints"), QString("Joint Value (radian)"), QString("Time (sec)"), QPair<double,double>((-170 * M_PI / 180), (170 * M_PI / 180)));
+		plot_checked_ = new platform_panda_plugins_ns::QtPlotChecked(widget_global_, QString("Movement of the Panda Joints"), QString("Joint Value (radian)"), QString("Time (sec)"), QPair<double,double>((-3.0718), (3.7525)));
 		
 		vlayout_global_->addWidget(plot_checked_);
 		
 		// set widget_global_  layout
 		widget_global_->setLayout(vlayout_global_);
-		
-		connect(this, SIGNAL(updateLabelJs(QVector<double>)), this, SLOT(doUpdateLabelJs(QVector<double>)));
 		
 		context.addWidget(widget_global_);
 		
@@ -120,6 +125,38 @@ namespace platform_panda_plugins_ns {
 	{
 		resetSlidersPositions();
 	}
+	
+	void JointPositionPlugin::sendGoHome()
+	{
+	    QVector<double> vect_home_joint_values;
+        QMap<QString, QVector<double> > map_go_home_joint_values;
+        
+		vect_home_joint_values.resize(7);
+		// [0.0, 0.0, 0.0, -1.57, 0.0, 1.57, 0.785
+		vect_home_joint_values[0] = 0.0;
+		vect_home_joint_values[1] = 0.0;
+		vect_home_joint_values[1] = 0.0;
+		vect_home_joint_values[3] = -1.57;
+		vect_home_joint_values[4] = 0.0;
+		vect_home_joint_values[5] = 1.57;
+		vect_home_joint_values[6] = 0.785;
+		
+		map_go_home_joint_values.insert(ns_combo_->currentText(),vect_home_joint_values);
+	
+	    joint_position_msg_.layout.dim.clear();
+		joint_position_msg_.layout.dim.push_back(std_msgs::MultiArrayDimension());
+		joint_position_msg_.layout.dim[0].size = map_selected_joint_values_[ns_combo_->currentText()].size();
+		joint_position_msg_.layout.dim[0].stride = 1;
+		joint_position_msg_.layout.dim[0].label = "x_values"; // or whatever name you typically use to index vec1
+
+		// copy in the data
+		joint_position_msg_.data.clear();
+		joint_position_msg_.data.insert(joint_position_msg_.data.end(), map_go_home_joint_values[ns_combo_->currentText()].begin(), map_go_home_joint_values[ns_combo_->currentText()].end());
+		
+		map_pub_joint_position_[ns_combo_->currentText()].publish(joint_position_msg_);
+	}
+	
+	
 	
 	void JointPositionPlugin::sendPosition()
 	{
@@ -157,7 +194,6 @@ namespace platform_panda_plugins_ns {
 		
 		shutdownROSComponents_();
 		
-		disconnect(this, SIGNAL(updateLabelJs(QVector<double>)), this, SLOT(doUpdateLabelJs(QVector<double>)));
 		disconnect(ns_combo_, SIGNAL(currentIndexChanged(int)), this, SLOT(ns_combo_changed(int)));
 	
 		disconnect(button_send_positions_, SIGNAL(pressed()), this, SLOT(sendPosition()));
@@ -205,6 +241,7 @@ namespace platform_panda_plugins_ns {
 	
 	void JointPositionPlugin::jsCallback_panda_1_(const sensor_msgs::JointState::ConstPtr& msg)
 	{
+	
 		QVector<double> values = QVector<double>::fromStdVector(std::vector<double>(std::begin(msg->position), std::end(msg->position)));
 		
 		bool zeros = std::all_of(values.begin(), values.end(), [](double position) { return position==0.0; });
@@ -235,7 +272,7 @@ namespace platform_panda_plugins_ns {
 					map_sliders_is_init_["panda_1"]=true;
 				}
 				
-				emit updateLabelJs(values);	
+				position_sliders_->updateLabelJs(values);	
 			}
 		}
 	}
@@ -279,21 +316,17 @@ namespace platform_panda_plugins_ns {
 	}
 	*/
 	
-	void JointPositionPlugin::doUpdateLabelJs(QVector<double> positions)
-	{
-		position_sliders_->updateLabelJs(positions);
-	}
 	
 	void JointPositionPlugin::setupROSComponents_()
 	{
 		QString name_of_position_controller = "joint_position_controller_ip";
 		
 		/* Setup publishers */
-		map_pub_joint_position_.insert("panda_1",getNodeHandle().advertise<std_msgs::Float64MultiArray>(QString("").append(name_of_position_controller).append("/").append("command").toStdString(), 1));
+		map_pub_joint_position_.insert("panda_1",getNodeHandle().advertise<std_msgs::Float64MultiArray>(QString("/").append(name_of_position_controller).append("/").append("command").toStdString(), 1));
 		//map_pub_joint_position_.insert("panda_2",getNodeHandle().advertise<std_msgs::Float64MultiArray>(QString("/panda_2/").append(name_of_position_controller).append("/").append("command").toStdString(), 1));
 		
 		/* Setup subscribers */
-		map_sub_joint_handle_.insert("panda_1",getNodeHandle().subscribe(QString("").append("joint_states").toStdString(), 100000, &JointPositionPlugin::jsCallback_panda_1_, this));
+		map_sub_joint_handle_.insert("panda_1",getNodeHandle().subscribe(QString("/").append("joint_states").toStdString(), 100000, &JointPositionPlugin::jsCallback_panda_1_, this));
 		//map_sub_joint_handle_.insert("panda_2",getNodeHandle().subscribe(QString("/panda_2/").append("joint_states").toStdString(), 100000, &JointPositionPlugin::jsCallback_panda_2_, this));
 		
 	}
@@ -303,7 +336,7 @@ namespace platform_panda_plugins_ns {
 		map_pub_joint_position_["panda_1"].shutdown();
 		//map_pub_joint_position_["panda_2"].shutdown();
 		
-		map_sub_joint_handle_["panda_1"].shutdown();
+		//map_sub_joint_handle_["panda_1"].shutdown();
 		//map_sub_joint_handle_["panda_2"].shutdown();
 		
 	}

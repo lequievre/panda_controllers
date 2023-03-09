@@ -16,6 +16,7 @@
 #include <QHeaderView>
 
 #include <math.h>
+#include <iostream>
 
 namespace platform_panda_plugins_ns {
 	
@@ -285,7 +286,8 @@ namespace platform_panda_plugins_ns {
 	
 	void QtPositionSliders::updateLabelJs(const QVector<double> & positions)
 	{
-		for (size_t i=0; i<positions.size(); i++)
+	    // positions size = 9 !!
+		for (size_t i=0; i<positions.size()-2; i++)
 		{
 			table_widget_global_->item(i,2)->setText(QString::number(positions[i],'f',5));
 		}

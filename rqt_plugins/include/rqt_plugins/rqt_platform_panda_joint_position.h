@@ -69,6 +69,8 @@
 
 #define TRACE_JointPositionPlugin_ACTIVATED 1
 
+#include <iostream>
+
 namespace platform_panda_plugins_ns {
 	
 	class JointPositionPlugin : public rqt_gui_cpp::Plugin
@@ -107,8 +109,7 @@ namespace platform_panda_plugins_ns {
 			void updateValueSliderJ6();
 			
 			void sendPosition();
-			
-			void doUpdateLabelJs(QVector<double> positions);
+			void sendGoHome();
 			
 			void ns_combo_changed(int);
 			void resetSlidersPositions();
@@ -128,7 +129,7 @@ namespace platform_panda_plugins_ns {
 			
 			QVBoxLayout* vlayout_global_, * vlayout_positions_;
 			
-			QPushButton* button_send_positions_;
+			QPushButton* button_send_positions_, * button_go_home_;
 			
 			QComboBox* ns_combo_;
 			
