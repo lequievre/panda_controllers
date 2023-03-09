@@ -42,13 +42,21 @@ void JointPositionControllerIP::commandCB(const std_msgs::Float64MultiArrayConst
 bool JointPositionControllerIP::init(hardware_interface::RobotHW* robot_hw,
                                           ros::NodeHandle& node_handle) {
 
+    ROS_INFO("Begin JointPositionControllerIP::init !");
+    
 	// subscribe to JointState command
 	sub_command_ = node_handle.subscribe("command", 20, &JointPositionControllerIP::commandCB, this, ros::TransportHints().reliable().tcpNoDelay());
 
 	target_buffer_.readFromNonRT()->resize(NB_JOINTS,0.0);
-	motion_target_.resize(NB_JOINTS,0.0);
-	motion_cmd_.resize(NB_JOINTS,0.0);
-	motion_current_position_.resize(NB_JOINTS,0.0);
+	
+	motion_target_.resize(NB_JOINTS);
+	motion_target_.setZero();
+	
+	motion_cmd_.resize(NB_JOINTS);
+	motion_cmd_.setZero();
+	
+	motion_current_position_.resize(NB_JOINTS);
+	motion_current_position_.setZero();
 	
 	cmd_flag_ = 0;  // set this flag to 0 to not run the update method
 
@@ -175,6 +183,7 @@ bool JointPositionControllerIP::init(hardware_interface::RobotHW* robot_hw,
 		{
 			joint_limits_.velocity.push_back(velocity_limit_map[joint_limits_.joint_names[i]]);
 			motion_velocity_limits_(i) = velocity_limit_map[joint_limits_.joint_names[i]];
+			//motion_velocity_limits_(i) = 0.5;
 		}
 		else
 		{
@@ -194,10 +203,10 @@ bool JointPositionControllerIP::init(hardware_interface::RobotHW* robot_hw,
 	}
 	
 	// CDD Dynamics
-	joint_cddynamics.reset(new motion::CDDynamics(position_joint_handles_.size(),1e-6,1));
+	joint_cddynamics.reset(new motion::CDDynamics(position_joint_handles_.size(),1e-6,1.0));
 	joint_cddynamics->SetVelocityLimits(motion_velocity_limits_);
 	
-	/*
+	
 	// Set rqt reconfigure server
 	dynamic_reconfigure_joint_controller_params_node_ =
 	ros::NodeHandle("joint_position_controller_ip/arm/controller_parameters_config");
@@ -208,21 +217,24 @@ bool JointPositionControllerIP::init(hardware_interface::RobotHW* robot_hw,
 
 	dynamic_server_joint_controller_params_->setCallback(
 	boost::bind(&JointPositionControllerIP::jointPositionControllerIPParamCallback, this, _1, _2));
-	*/
+	
+	
+	ROS_INFO("End JointPositionControllerIP::init !");
 	
 	return true;
 }
 
 void JointPositionControllerIP::starting(const ros::Time& /* time */) {
 
-	std::vector<double> initial_pos;
+    ROS_INFO("***** Begin JointPositionControllerIP::starting ************");
+    std::vector<double> initial_pos;
 	initial_pos.resize(NB_JOINTS);
-
+	
 	for (size_t i=0; i<NB_JOINTS; i++)
 	{
 		initial_pos[i] = position_joint_handles_[i].getPosition();
 		motion_target_(i) = initial_pos[i];
-		motion_current_position_(i) = position_joint_handles_[i].getPosition();	
+		motion_current_position_(i) = initial_pos[i];
 	}
 	
 	target_buffer_.writeFromNonRT(initial_pos);
@@ -232,12 +244,14 @@ void JointPositionControllerIP::starting(const ros::Time& /* time */) {
 	joint_cddynamics->SetDt(0.001);
 	joint_cddynamics->SetTarget(motion_target_);
 	
-	for (size_t i=0; i<7; ++i)
+	for (size_t i=0; i<NB_JOINTS; ++i)
 	{
 	  ROS_INFO_STREAM("Starting : " << initial_pos[i] << ", " );
     }
     
 	cmd_flag_ = 0;  // set this flag to 0 to not run the update method
+	
+	ROS_INFO("***** End JointPositionControllerIP::starting ************");
     
 }
 
@@ -249,9 +263,7 @@ void JointPositionControllerIP::stopping(const ros::Time& time)
 void JointPositionControllerIP::update(const ros::Time& time,
                                             const ros::Duration& period) {
       
-    
-	
-	std::vector<double> & vector_target = *target_buffer_.readFromRT();
+    std::vector<double> & vector_target = *target_buffer_.readFromRT();
 	
 	for (size_t i=0; i<NB_JOINTS; i++)
 	{
@@ -322,7 +334,9 @@ void JointPositionControllerIP::update(const ros::Time& time,
 	{
 		 realtime_obs_orientation_pub_->msg_  = obs_orientation_msg_;
 		 realtime_obs_orientation_pub_->unlockAndPublish();
-	}
+	}  
+	
+	
    
 }
 
@@ -338,15 +352,20 @@ bool JointPositionControllerIP::checkPositionLimits(const std::vector<double> & 
   	return false;
 }
 
-/*
+
 void JointPositionControllerIP::jointPositionControllerIPParamCallback(franka_panda_ip_controllers::joint_position_controller_ip_paramsConfig& config,
                                uint32_t level){
-	target_filter_joint_pos_ = config.target_filter_joint_pos_delta;
+                               
+    ROS_INFO_STREAM("Change factor velocity : " << config.factor_velocity);
+                
+    joint_cddynamics->SetWn(config.factor_velocity);
+                               
+	/*target_filter_joint_pos_ = config.target_filter_joint_pos_delta;
 	filter_joint_pos_ = config.filter_joint_pos_delta;
 	filter_factor_ = config.filter_factor_delta;
-	param_change_filter_ = config.param_change_filter_delta;
+	param_change_filter_ = config.param_change_filter_delta;*/
 }
-*/
+
 
 }  // namespace franka_panda_ip_controllers
 

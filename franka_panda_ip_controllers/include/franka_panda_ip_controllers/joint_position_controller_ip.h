@@ -48,8 +48,6 @@ namespace franka_panda_ip_controllers {
 // NB joints of franka panda = 7
 constexpr int NB_JOINTS = 7;
 
-using MotionVector = Eigen::VectorXd;
-
 class JointPositionControllerIP : public controller_interface::MultiInterfaceController<
                                           	franka_hw::FrankaModelInterface,
                                         	hardware_interface::PositionJointInterface,
@@ -82,7 +80,7 @@ class JointPositionControllerIP : public controller_interface::MultiInterfaceCon
 
   franka_core_msgs::JointLimits joint_limits_;
   
-  /*
+  
   // Dynamic reconfigure
   std::unique_ptr< dynamic_reconfigure::Server<franka_panda_ip_controllers::joint_position_controller_ip_paramsConfig> > dynamic_server_joint_controller_params_;
   ros::NodeHandle dynamic_reconfigure_joint_controller_params_node_;
@@ -92,7 +90,7 @@ class JointPositionControllerIP : public controller_interface::MultiInterfaceCon
 
   franka_hw::TriggerRate trigger_publish_;
   realtime_tools::RealtimePublisher<franka_core_msgs::JointControllerStates> publisher_controller_states_;
-  */
+  
   
   bool checkPositionLimits(const std::vector<double> & positions);
                                            
@@ -106,9 +104,9 @@ class JointPositionControllerIP : public controller_interface::MultiInterfaceCon
   
   realtime_tools::RealtimeBuffer<std::vector<double> >target_buffer_;
   
-  MotionVector motion_target_;
-  MotionVector motion_cmd_;
-  MotionVector motion_current_position_;
+  motion::Vector motion_target_;
+  motion::Vector motion_cmd_;
+  motion::Vector motion_current_position_;
   int cmd_flag_;  // flag set only to 1 when the controller receive a message to the command topic
             
 };
