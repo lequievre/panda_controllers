@@ -1,0 +1,17 @@
+<library path="lib/librqt_plugins">
+  <class name="platform_panda_plugins_ns/JointPositionPlugin" type="platform_panda_plugins_ns::JointPositionPlugin" base_class_type="rqt_gui_cpp::Plugin">
+    <description>
+      A C++ GUI plugin to send joint position to platform sigma.
+    </description>
+    <qtgui>
+      <group>
+        <label>Panda IP Plugins</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins of Panda IP Platform.</statustip>
+      </group>
+      <label>Joint Position</label>
+      <icon type="theme">image-x-generic</icon>
+      <statustip>A C++ GUI for sending joint position to Panda Robot.</statustip>
+    </qtgui>
+  </class>
+</library>
